@@ -2,9 +2,20 @@
 name: cp_halo
 packages:
 - cloudpassage
+
+properties:
+  cp_halo.agent_key:
+    description: agent register key
+  cp_halo.server_tag:
+    description: agent server tag
+  cp_halo.aws_server_label:
+    description: use the combination of aws account id and instance id as server_label. Takes (True/False)
+    default: 1
+
 templates:
   bin/ctl: bin/ctl
   bin/monit_debugger: bin/monit_debugger
   data/properties.sh.erb: data/properties.sh
   helpers/ctl_setup.sh: helpers/ctl_setup.sh
   helpers/ctl_utils.sh: helpers/ctl_utils.sh
+  bin/init.d: bin/cphalod

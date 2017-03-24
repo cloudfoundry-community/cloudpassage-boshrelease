@@ -9,16 +9,54 @@ source /var/vcap/jobs/cp_halo/helpers/ctl_setup.sh 'cp_halo'
 export PORT=${PORT:-5000}
 export LANG=en_US.UTF-8
 
+install_deb() {
+    server_label=$1
+#    echo 'deb https://production.packages.cloudpassage.com/debian debian main' >> cloudpassage.list
+#    mv cloudpassage.list  /etc/apt/sources.list.d/. >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    apt-get -y install curl >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    apt-get install -y apt-transport-https --force-yes >> $LOG_DIR/$JOB_NAME.log 2>&1
+    curl https://production.packages.cloudpassage.com/cloudpassage.packages.key | sudo apt-key add - >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    apt-get update > /dev/null >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    apt-get -y install cphalo >> $LOG_DIR/$JOB_NAME.log 2>&1
+    /var/vcap/packages/cloudpassage/bin/configure --agent-key=$AGENT_KEY --grid=https://grid.cloudpassage.com/grid --server-label=$server_label $tag >> $LOG_DIR/$JOB_NAME.log 2>&1
+    /var/vcap/jobs/cphalo/bin/cphalod start >> $LOG_DIR/$JOB_NAME.log 2>&1
+    pidof cphalo > $PIDFILE
+}
+
+install_yum() {
+    server_label=$1
+#    echo -e '[cloudpassage]\nname=CloudPassage\nbaseurl=https://production.packages.cloudpassage.com/redhat/$basearch\ngpgcheck=1' | sudo tee /etc/yum.repos.d/cloudpassage.repo > /dev/null >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    sudo rpm --import https://production.packages.cloudpassage.com/cloudpassage.packages.key >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    sudo yum list >> $LOG_DIR/$JOB_NAME.log 2>&1
+#    sudo yum -y install cphalo > /dev/null >> $LOG_DIR/$JOB_NAME.log 2>&1
+    sudo /var/vcap/packages/cloudpassage/bin/configure --agent-key=$AGENT_KEY --grid=https://grid.cloudpassage.com/grid --server-label=$server_label $tag >> $LOG_DIR/$JOB_NAME.log 2>&1
+    sudo /etc/init.d/cphalod start >> $LOG_DIR/$JOB_NAME.log 2>&1
+    pidof cphalo > $PIDFILE
+}
+
 case $1 in
 
   start)
-    pid_guard $PIDFILE $JOB_NAME
+    platform="$(cat /etc/*-release | grep -w ID)"
+    if [ $AWS_SERVER_LABEL == 0 ]  ; then
+        account_id=$(curl -fs http://169.254.169.254/latest/dynamic/instance-identity/document/ | python -c "import json,sys;obj=json.load(sys.stdin);print obj['accountId']")
+        instance_id=$(curl -fs http://169.254.169.254/latest/dynamic/instance-identity/document/ | python -c "import json,sys;obj=json.load(sys.stdin);print obj['instanceId']")
+        server_label=$account_id\_$instance_id
+    else
+        server_label="$(hostname)"
+    fi
 
-    # store pid in $PIDFILE
-    echo $$ > $PIDFILE
+    if [ -z "$SERVER_TAG" ] ; then
+        tag=""
+    else
+        tag="--tag=$SERVER_TAG"
+    fi
 
-    exec chpst -u vcap:vcap cp_halo \
-         >>$LOG_DIR/$JOB_NAME.log 2>&1
+    if [[ $platform == *"ubuntu"* || $platform == *"debian"* ]]; then
+        install_deb $server_label $tag
+    else
+        install_yum $server_label $tag
+    fi
 
     ;;
 
@@ -26,8 +64,9 @@ case $1 in
     kill_and_wait $PIDFILE
 
     ;;
+
   *)
-    echo "Usage: cp_halo_ctl {start|stop}"
+    echo "Usage: install_ctl {start|stop}"
 
     ;;
 

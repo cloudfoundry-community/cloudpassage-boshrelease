@@ -8,10 +8,12 @@ CPUS=$(grep -c ^processor /proc/cpuinfo)
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME=/var/vcap
 
-
-
 tar xfv cloudpassage/cloudpassage.tgz
+
 mkdir $BOSH_INSTALL_TARGET/bin
+mkdir $BOSH_INSTALL_TARGET/data
+mkdir $BOSH_INSTALL_TARGET/log
+
 # cd configure
 # ./configure --prefix=${BOSH_INSTALL_TARGET}
 # make -j${CPUS} && make install
