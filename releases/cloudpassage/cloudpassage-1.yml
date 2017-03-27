@@ -1,0 +1,24 @@
+---
+packages:
+- name: cloudpassage
+  version: 2fc69534325ac00d375e4cefdbc884d023edf192
+  fingerprint: 2fc69534325ac00d375e4cefdbc884d023edf192
+  sha1: 23d2124cc702864fdd986929f3f8502eaf1538a3
+  dependencies: []
+jobs:
+- name: cp_halo
+  version: b9800155441283c1c656329c236481faf0741a3d
+  fingerprint: b9800155441283c1c656329c236481faf0741a3d
+  sha1: 08d9a0186642ef206f382ccb63ff31f7f367ad9d
+- name: just_install_packages
+  version: dbbec7903e56eada46d341e6b8f8909969582cce
+  fingerprint: dbbec7903e56eada46d341e6b8f8909969582cce
+  sha1: 75b21bc6617c4be0106a7a1d6b45fbe60a648ec5
+license:
+  version: 025bdc8256aaf6fae782d8e23f6e8e09b3e596da
+  fingerprint: 025bdc8256aaf6fae782d8e23f6e8e09b3e596da
+  sha1: 7a4d46cc329e106f4b3b95e2251cbecb23bf1ce1
+commit_hash: b916416d
+uncommitted_changes: true
+name: cloudpassage
+version: '1'
