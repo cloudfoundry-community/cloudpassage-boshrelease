@@ -90,3 +90,6 @@ done
 PIDFILE=$RUN_DIR/$output_label.pid
 
 echo '$PATH' $PATH
+
+mkdir /opt/cloudpassage
+mkdir /opt/cloudpassage/data
